@@ -1,0 +1,127 @@
+# general settings
+name: test_DPMambaIR_jpeg
+model_type: ImageCleanMultiLossModel
+scale: 1
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 100
+
+# dataset and data loader settings
+datasets:
+  # val:
+    # name: MiniTest
+    # type: AIOPairedImageDataset
+    # dir: minitest
+    # io_backend:
+    #   type: disk
+  # lowlight:
+  #   name: lowlight
+  #   type: TestPairedImageDataset
+  #   geometric_augs: true
+  #   dataroot: /zs/Data/AllInOneDataset/lowlight/test
+  #   filename_tmpl: '{}'
+  #   io_backend:
+  #     type: disk
+  # rain:
+  #   name: rain
+  #   type: TestPairedImageDataset
+  #   geometric_augs: true
+  #   dataroot: /zs/Data/AllInOneDataset/rain/test
+  #   filename_tmpl: '{}'
+  #   io_backend:
+  #     type: disk
+  fog:
+    name: fog
+    type: TestPairedImageDataset
+    geometric_augs: true
+    dataroot: /zs/Data/AllInOneDataset/fog/test
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+  snow:
+    name: snow
+    type: TestPairedImageDataset
+    geometric_augs: true
+    dataroot: /zs/Data/AllInOneDataset/snow/test
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+  # jpeg:
+  #   name: jpeg
+  #   type: TestPairedImageDataset
+  #   geometric_augs: true
+  #   dataroot: /zs/Data/AllInOneDataset/jpeg/test
+  #   filename_tmpl: '{}'
+  #   io_backend:
+  #     type: disk
+  noise:
+    name: noise
+    type: TestPairedImageDataset
+    geometric_augs: true
+    dataroot: /zs/Data/AllInOneDataset/noise/test
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+  blur:
+    name: blur
+    type: TestPairedImageDataset
+    geometric_augs: true
+    dataroot: /zs/Data/AllInOneDataset/blur/test
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+
+    # data loader
+    # use_shuffle: false
+    # num_worker_per_gpu: 8
+    # batch_size_per_gpu: 1
+
+network_g:
+  type: DPMambaIR
+  inp_channels: 3
+  out_channels: 3
+  dim: 48
+  num_blocks: [4,6,6,8]
+  num_refinement_blocks: 2
+  heads: [1,2,4,8]
+  ffn_expansion_factor: 2.66
+  bias: False
+  LayerNorm_type: WithBias
+  dual_pixel_task: False
+  
+# path
+path:
+  pretrain_network_g: /zs/Restormer/experiments/train_AIO_DPMambaIR/models/net_g_50000.pth
+  strict_load_g: true
+
+# validation settings
+val:
+  window_size: 8
+  val_freq: !!float 4e3
+  save_img: true
+  rgb2bgr: true
+  use_image: true
+  max_minibatch: 8
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 200
+  save_checkpoint_freq: !!float 4e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

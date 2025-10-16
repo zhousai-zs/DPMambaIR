@@ -1,0 +1,137 @@
+name: Train_Degradation_Encoder_Para4
+suffix: ~  # add suffix to saved images
+model: ddg_1decoder
+distortion: ir
+scale: 1
+crop_border: 0  # crop border when evaluation. If None(~), crop the scale pixels
+gpu_ids: []
+dist:
+is_train: true
+
+train:
+  warmup_iter: -1
+  manual_seed: 100
+  pixel_weight: 0.1
+  pixel_criterion: l1
+  dde_weight: 1
+  feature_weight: 1
+  feature_criterion: l2
+  patch_gan: false
+  gan_type: lsgan
+  gan_weight: 0.05
+  D_update_ratio: 1
+  D_init_iters: 0
+  weight_decay_G: 0.0001
+  lr_G: 0.0001
+  beta1_G: 0.9
+  beta2_G: 0.999
+  weight_decay_D: 0.0001
+  lr_D: 0.0001
+  beta1_D: 0.9
+  beta2_D: 0.999
+  lr_scheme: MultiStepLR
+  lr_steps: [6000, 10000, 16000, 20000, 30000, 40000, 45000]
+  restarts: [0]
+  restart_weights: [1]
+  lr_gamma: 0.5
+  clear_state: false
+  val_freq: 2000
+
+datasets:
+  train:
+    name: Train
+    batch_size: 1
+    niter: 50000
+    mode: MultiDDGTrainDataset
+    n_workers: 1
+    geometric_augs: true
+    dir: train
+    gt_size: 256
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+    phase: train
+    # dataroot: /zs/Data/recdeg/train
+  val:
+    name: Val
+    batch_size: 1
+    niter: 50000
+    mode: MultiDDGTrainDataset
+    n_workers: 1
+    geometric_augs: false
+    dir: minitest
+    gt_size: 256
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+    phase: test
+    # dataroot: /zs/Data/recdeg/test
+  
+    
+#### network structures
+network_DDE_Encoder:
+  which_model_DDE_Encoder: DeepDegradationEncoder_v2 # DeepDegradationEncoder_v2 | DeepDegradationEncoder_v1 | DeepDegradationEncoder_v3 | ConditionNet_GFM
+  in_nc: 3
+  out_nc: 3
+  nf: 64
+  nb: 16
+  pretrained_DDR_model: ../pretrained_DDR_models/B02_MSRGAN_wGR_i_DIV2K_clean/models/400000_G.pth
+
+network_DDE:
+  which_model_DDE: Restormer_Backbone
+  inp_channels: 3
+  out_channels: 64
+  dim: 48
+  num_blocks: [4,6,6,8]
+  num_refinement_blocks: 4
+  heads: [1,2,4,8]
+  ffn_expansion_factor: 2.66
+  bias: False
+  LayerNorm_type: WithBias
+  dual_pixel_task: False
+  global_residual: False
+  GR: false
+
+network_DDG:
+  which_model_DDG: MSRResNet_Head # RCAN_Head | MSRResNet_Head
+  
+  in_nc: 64
+  out_nc: 3
+  upscale: 1
+  
+  modul_channels: 512
+  require_modulation: true
+  modulation_mode: GFM
+  
+network_D_DDG:
+  which_model_D_DDG: NLayerDiscriminator
+  in_nc: 3
+  nf: 3
+
+
+#### path
+path:
+  pretrain_model_DDG_Encoder: /zs/DegAE_DegradationAutoencoder/experiments/Train_LQ_Reconstruct_All_addCls/models/14000_DDG_Encoder.pth
+  pretrain_model_DegCls: /zs/DegAE_DegradationAutoencoder/experiments/Train_LQ_Reconstruct_All_addCls/models/14000_DegCls.pth
+  pretrain_model_PretrainEncoder: /zs/DegAE_DegradationAutoencoder/experiments/Train_LQ_Reconstruct_All_addCls/models/14000_PretrainEncoder.pth
+  pretrain_model_PretrainDecoder: /zs/DegAE_DegradationAutoencoder/experiments/Train_LQ_Reconstruct_All_addCls/models/14000_PretrainDecoder.pth
+  pretrain_model_D: /zs/DegAE_DegradationAutoencoder/experiments/Train_LQ_Reconstruct_All_addCls/models/14000_D.pth
+  resume_state: ~ #/zs/DegAE_DegradationAutoencoder/experiments/Train_LQ_Reconstruct_All_addCls/training_state/14000.state
+  strict_load: false
+  experiments_root: /zs/DegAE_DegradationAutoencoder/experiments
+  log: /zs/DegAE_DegradationAutoencoder/logs
+  val_images: /zs/DegAE_DegradationAutoencoder/experiments/images
+  
+  #fea_save_path: ~
+logger:
+  print_freq: 200
+  save_checkpoint_freq: !!float 2e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500

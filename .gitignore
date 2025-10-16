@@ -1,0 +1,4 @@
+pretrained_DDR_models/
+*.pth
+*.pyc
+tb_logger/
