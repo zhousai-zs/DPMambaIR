@@ -28,4 +28,4 @@ python setup.py develop --no_cuda_ext
 
 ### Download datasets from Google Drive
 
-XXX
+[All-in-One数据集下载链接](https://drive.google.com/file/d/11eeZptw6GVAU8EMlw7i7YRH8jxEbPjqA/view?usp=drive_link)

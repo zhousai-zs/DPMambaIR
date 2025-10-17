@@ -1,6 +1,6 @@
 # DPMambaIR
 
-DPMambaIR
+DPMambaIR: All-in-One Image Restoration via Degradaion-Aware Prompt State Space Model
 
 ## Installation
 
@@ -8,7 +8,7 @@ See [INSTALL.md](Install.md) for the installation of dependencies required to ru
 
 ## Dataset
 Google drive下载路径
-
+[All-in-One数据集下载链接](https://drive.google.com/file/d/11eeZptw6GVAU8EMlw7i7YRH8jxEbPjqA/view?usp=drive_link)
 
 ## Train
 注意在yml文件中配置权重路径以及数据集路径
@@ -35,7 +35,8 @@ DPMambaIR-L: basicsr/options/test/test_DPMambaIRnewDE_para4.yml
 
 ## Pth Install Prepare
 Google drive下载路径
+预训练降质提取器：[paper report训练权重，非并行结构](https://drive.google.com/file/d/1_VS63VTt-3asDGxK6RKXeiKn-rTK9elx/view?usp=drive_link)
 
-DPMambaIR:
+DPMambaIR:[paper report训练权重](https://drive.google.com/file/d/1zEVtk0d69zpsNiN5z-hgWr5v3m__5AeG/view?usp=drive_link)
 
-DPMambaIR-L:
+DPMambaIR-L:[paper report训练权重](https://drive.google.com/file/d/1CPsnzPAhb5XuBrxwZa8WFgzdzOxXTYGp/view?usp=drive_link)
